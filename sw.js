@@ -1,4 +1,4 @@
-const CACHE_NAME = 'veterinary-qna-v9';
+const CACHE_NAME = 'veterinary-qna-v10';
 const ASSETS = [
   './',
   './index.html',
@@ -8,10 +8,6 @@ const ASSETS = [
   './manifest.webmanifest',
   './data/questions.json',
   './assets/login-bg.png',
-  './assets/login-corners/corner-tl.png',
-  './assets/login-corners/corner-tr.png',
-  './assets/login-corners/corner-bl.png',
-  './assets/login-corners/corner-br.png',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/apple-touch-icon.png',
