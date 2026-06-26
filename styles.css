@@ -1,18 +1,18 @@
 :root {
-  --bg: #f4f7f5;
+  --bg: #fdf6f8;
   --surface: #ffffff;
-  --primary: #1a5f4a;
-  --primary-light: #e8f3ef;
-  --primary-dark: #134536;
-  --accent: #e8a838;
-  --text: #1c2b26;
-  --text-muted: #6b7f77;
-  --border: #d8e4df;
-  --correct: #2d9f6f;
-  --correct-bg: #e6f7ef;
+  --primary: #c97b8f;
+  --primary-light: #fce8ee;
+  --primary-dark: #a85d72;
+  --accent: #b39ddb;
+  --text: #3d2a30;
+  --text-muted: #8a6d75;
+  --border: #f0d9e0;
+  --correct: #5a9f7a;
+  --correct-bg: #edf7f0;
   --wrong: #d94f4f;
   --wrong-bg: #fdeeee;
-  --shadow: 0 2px 12px rgba(26, 95, 74, 0.08);
+  --shadow: 0 2px 12px rgba(200, 120, 140, 0.1);
   --radius: 16px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-top: env(safe-area-inset-top, 0px);
@@ -68,16 +68,18 @@ body {
   justify-content: center;
   padding: 24px 16px;
   min-height: 100dvh;
-  background: linear-gradient(160deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: url('assets/login-bg.png') center center / cover no-repeat;
 }
 
 .login-card {
   width: 100%;
   max-width: 360px;
-  background: var(--surface);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: 24px;
   padding: 32px 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(168, 93, 114, 0.2);
 }
 
 .login-card .hero-label {
@@ -209,21 +211,23 @@ body {
   color: var(--primary);
 }
 
-.user-switch-btn {
-  border: none;
-  background: var(--bg);
+.user-logout-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 4px 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: inherit;
   flex-shrink: 0;
+  line-height: 1.2;
 }
 
-.user-switch-btn:active {
-  background: var(--border);
+.user-logout-btn:active {
+  background: var(--primary-light);
+  color: var(--primary-dark);
 }
 
 .exam-history {
@@ -591,6 +595,17 @@ body {
 }
 
 .answer-explanation.hidden {
+  display: none;
+}
+
+.explanation-source {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: left;
+}
+
+.explanation-source.hidden {
   display: none;
 }
 
@@ -1035,7 +1050,7 @@ details[open] .record-chevron {
 }
 
 .source-practice {
-  color: #1a5f4a;
+  color: var(--primary-dark);
   background: var(--primary-light);
 }
 

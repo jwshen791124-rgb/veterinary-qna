@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "explanationModel": "GPT-5.5",
+    "explanationLabel": "獸醫知識解析"
+  },
   "categories": [
     {
       "name": "法規與倫理",

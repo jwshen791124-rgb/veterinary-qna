@@ -26,6 +26,9 @@ const CATEGORY_ICONS = {
 
 const EXAM_SIZE = 100;
 
+let explanationModel = 'GPT-5.5';
+let explanationLabel = '獸醫知識解析';
+
 const SOURCE_LABELS = {
   practice: '練習',
   exam: '測驗',
@@ -148,6 +151,10 @@ async function loadData() {
   const res = await fetch('./data/questions.json');
   if (!res.ok) throw new Error('無法載入題庫');
   state.data = await res.json();
+  if (state.data.meta?.explanationModel) {
+    explanationModel = state.data.meta.explanationModel;
+    explanationLabel = state.data.meta.explanationLabel || explanationLabel;
+  }
   state.questionMap = buildQuestionMap(state.data);
   if (getCurrentUser()) refreshUserData();
 }
@@ -483,6 +490,7 @@ function renderQuestion() {
   $('#feedback').classList.add('hidden');
   $('#feedback').classList.remove('correct-fb', 'wrong-fb');
   $('#answer-explanation').classList.add('hidden');
+  $('#explanation-source').classList.add('hidden');
   $('#btn-next').classList.add('hidden');
   $('#btn-finish').classList.add('hidden');
   $('#btn-finish').textContent = '查看成績';
@@ -492,11 +500,15 @@ function renderQuestion() {
 
 function showAnswerExplanation(q) {
   const el = $('#answer-explanation');
+  const sourceEl = $('#explanation-source');
   if (q.explanation) {
     el.textContent = `📖 ${q.explanation}`;
     el.classList.remove('hidden');
+    sourceEl.textContent = `備註來源：${explanationModel}（${explanationLabel}）`;
+    sourceEl.classList.remove('hidden');
   } else {
     el.classList.add('hidden');
+    sourceEl.classList.add('hidden');
   }
 }
 

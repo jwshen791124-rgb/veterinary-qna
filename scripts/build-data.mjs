@@ -101,6 +101,14 @@ try {
   // 尚無註解檔
 }
 
+let explanationMeta = { model: 'GPT-5.5', label: '獸醫知識解析' };
+const explanationMetaPath = join(root, 'data', 'explanation-meta.json');
+try {
+  explanationMeta = JSON.parse(readFileSync(explanationMetaPath, 'utf8'));
+} catch {
+  // 使用預設
+}
+
 for (const q of questions) {
   if (explanations[q.id]) {
     q.explanation = explanations[q.id];
@@ -124,6 +132,10 @@ for (const q of questions) {
 }
 
 const output = {
+  meta: {
+    explanationModel: explanationMeta.model,
+    explanationLabel: explanationMeta.label,
+  },
   categories: CATEGORIES.map((name) => ({
     name,
     count: categorized[name].length,

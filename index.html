@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#1a5f4a" />
+  <meta name="theme-color" content="#f9e4e8" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="獸醫問卷" />
@@ -45,7 +45,7 @@
 
     <header id="app-user-bar" class="app-user-bar hidden">
       <span id="user-display" class="user-display"></span>
-      <button type="button" id="btn-logout" class="user-switch-btn">切換受試者</button>
+      <button type="button" id="btn-logout" class="user-logout-btn" aria-label="登出">登出</button>
     </header>
 
     <!-- 首頁：分類選擇 -->
@@ -131,6 +131,7 @@
           <p id="feedback-text" class="feedback-text"></p>
           <p id="correct-answer" class="correct-answer hidden"></p>
           <p id="answer-explanation" class="answer-explanation hidden"></p>
+          <p id="explanation-source" class="explanation-source hidden"></p>
         </div>
       </main>
 
