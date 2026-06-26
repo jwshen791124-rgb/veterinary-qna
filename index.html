@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a5f4a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>獸醫問卷練習</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 受試者登入 -->
+    <section id="view-login" class="view login-view">
+      <div class="login-card">
+        <p class="hero-label">Veterinary Q&amp;A</p>
+        <h1>受試者登入</h1>
+        <p class="login-desc">請輸入您的受試者代號，練習與測驗紀錄將與此代號綁定</p>
+        <label class="login-label" for="login-code">受試者代號</label>
+        <input
+          type="text"
+          id="login-code"
+          class="login-input"
+          placeholder="例如：S001"
+          autocomplete="username"
+          maxlength="32"
+        />
+        <p id="login-error" class="login-error hidden"></p>
+        <button type="button" id="btn-login" class="btn-primary">進入</button>
+      </div>
+    </section>
+
+    <header id="app-user-bar" class="app-user-bar hidden">
+      <span id="user-display" class="user-display"></span>
+      <button type="button" id="btn-logout" class="user-switch-btn">切換受試者</button>
+    </header>
+
+    <!-- 首頁：分類選擇 -->
+    <section id="view-home" class="view tab-view">
+      <header class="hero">
+        <p class="hero-label">Veterinary Q&amp;A</p>
+        <h1>獸醫問卷練習</h1>
+        <p class="hero-desc">選擇主題開始練習，隨時隨地複習題庫</p>
+      </header>
+      <div id="category-list" class="category-list"></div>
+      <footer class="home-footer">
+        <span id="total-count">載入中…</span>
+      </footer>
+    </section>
+
+    <!-- 錯題記錄 -->
+    <section id="view-wrong" class="view tab-view">
+      <header class="page-header">
+        <h1>錯題記錄</h1>
+        <p class="page-desc">依「日期 · 練習」與「日期 · 測驗」分開保存</p>
+      </header>
+      <div id="wrong-list" class="record-list"></div>
+    </section>
+
+    <!-- 標記複習 -->
+    <section id="view-bookmarks" class="view tab-view">
+      <header class="page-header">
+        <h1>標記複習</h1>
+        <p class="page-desc">練習時點擊 ☆ 標記題目</p>
+      </header>
+      <div id="bookmark-actions" class="bookmark-actions hidden">
+        <button type="button" id="btn-practice-bookmarks" class="btn-primary">開始複習標記題</button>
+      </div>
+      <div id="bookmark-list" class="record-list"></div>
+    </section>
+
+    <!-- 模擬測驗 -->
+    <section id="view-exam" class="view tab-view">
+      <header class="page-header">
+        <h1>模擬測驗</h1>
+        <p class="page-desc">依七大類題庫比例隨機抽取 100 題</p>
+      </header>
+      <div class="exam-panel">
+        <div class="exam-score-preview">
+          <span class="exam-score-num">100</span>
+          <span class="exam-score-unit">滿分</span>
+        </div>
+        <ul id="exam-breakdown" class="exam-breakdown"></ul>
+        <div id="exam-history" class="exam-history hidden"></div>
+        <p class="exam-note">測驗結束後顯示分數，答錯題目會記錄在「錯題」分頁（標示為測驗）</p>
+        <button type="button" id="btn-start-exam" class="btn-primary">開始測驗</button>
+      </div>
+    </section>
+
+    <!-- 測驗頁 -->
+    <section id="view-quiz" class="view">
+      <header class="quiz-header">
+        <button type="button" id="btn-back" class="icon-btn" aria-label="返回">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="quiz-meta">
+          <span id="quiz-category" class="quiz-category"></span>
+          <span id="quiz-progress-text" class="quiz-progress-text"></span>
+        </div>
+        <button type="button" id="btn-bookmark" class="icon-btn bookmark-btn" aria-label="標記題目">☆</button>
+        <button type="button" id="btn-shuffle" class="icon-btn" aria-label="重新洗牌">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+        </button>
+      </header>
+
+      <div class="progress-bar-wrap">
+        <div id="progress-bar" class="progress-bar"></div>
+      </div>
+
+      <main class="quiz-body">
+        <div id="question-card" class="question-card">
+          <p id="question-text" class="question-text"></p>
+          <div id="options-list" class="options-list"></div>
+        </div>
+
+        <div id="feedback" class="feedback hidden">
+          <div class="feedback-icon" id="feedback-icon"></div>
+          <p id="feedback-text" class="feedback-text"></p>
+          <p id="correct-answer" class="correct-answer hidden"></p>
+        </div>
+      </main>
+
+      <footer class="quiz-footer">
+        <button type="button" id="btn-next" class="btn-primary hidden">下一題</button>
+        <button type="button" id="btn-finish" class="btn-primary hidden">查看成績</button>
+      </footer>
+    </section>
+
+    <!-- 成績頁 -->
+    <section id="view-result" class="view">
+      <div class="result-card">
+        <div class="result-ring" id="result-ring">
+          <span id="result-percent" class="result-percent">0</span>
+          <span id="result-unit" class="result-unit hidden">分</span>
+        </div>
+        <h2 id="result-title">練習完成</h2>
+        <p id="result-category" class="result-category"></p>
+        <div class="result-stats">
+          <div class="stat">
+            <span id="stat-correct" class="stat-value">0</span>
+            <span class="stat-label">答對</span>
+          </div>
+          <div class="stat">
+            <span id="stat-wrong" class="stat-value">0</span>
+            <span class="stat-label">答錯</span>
+          </div>
+          <div class="stat">
+            <span id="stat-total" class="stat-value">0</span>
+            <span class="stat-label">總題數</span>
+          </div>
+        </div>
+        <div class="result-actions">
+          <button type="button" id="btn-retry-wrong" class="btn-secondary hidden">重練錯題</button>
+          <button type="button" id="btn-retry-all" class="btn-secondary">再練一次</button>
+          <button type="button" id="btn-home" class="btn-primary">返回首頁</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 底部導覽 -->
+    <nav id="bottom-nav" class="bottom-nav">
+      <button type="button" class="nav-item active" data-tab="home">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">練習</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="wrong">
+        <span class="nav-icon">📝</span>
+        <span class="nav-label">錯題</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="bookmarks">
+        <span class="nav-icon">⭐</span>
+        <span class="nav-label">標記</span>
+      </button>
+      <button type="button" class="nav-item" data-tab="exam">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">測驗</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
