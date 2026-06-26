@@ -68,7 +68,11 @@ function showView(name) {
   views[name].classList.add('active');
   const inApp = tabViews.includes(name) || name === 'quiz' || name === 'result';
   $('#bottom-nav').classList.toggle('hidden', !tabViews.includes(name));
-  $('#app-user-bar').classList.toggle('visible', inApp && !!getCurrentUser());
+  const showUserBar = inApp && !!getCurrentUser();
+  const userBar = $('#app-user-bar');
+  userBar.classList.toggle('visible', showUserBar);
+  userBar.classList.remove('hidden');
+  if (showUserBar) updateUserBar();
 }
 
 function updateUserBar() {
