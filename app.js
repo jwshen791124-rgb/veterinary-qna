@@ -482,11 +482,22 @@ function renderQuestion() {
 
   $('#feedback').classList.add('hidden');
   $('#feedback').classList.remove('correct-fb', 'wrong-fb');
+  $('#answer-explanation').classList.add('hidden');
   $('#btn-next').classList.add('hidden');
   $('#btn-finish').classList.add('hidden');
   $('#btn-finish').textContent = '查看成績';
   state.answered = false;
   state.selectedKey = null;
+}
+
+function showAnswerExplanation(q) {
+  const el = $('#answer-explanation');
+  if (q.explanation) {
+    el.textContent = `📖 ${q.explanation}`;
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
 }
 
 function selectOption(key) {
@@ -530,12 +541,9 @@ function selectOption(key) {
     $('#feedback-text').textContent = isCorrect ? '答對了！' : '答錯了';
 
     const correctEl = $('#correct-answer');
-    if (!isCorrect) {
-      correctEl.classList.remove('hidden');
-      correctEl.textContent = `正確答案：${q.answer}. ${q.options[q.answer]}`;
-    } else {
-      correctEl.classList.add('hidden');
-    }
+    correctEl.classList.remove('hidden');
+    correctEl.textContent = `正確答案：${q.answer}. ${q.options[q.answer]}`;
+    showAnswerExplanation(q);
   }
 
   const isLast = state.currentIndex >= state.questions.length - 1;

@@ -580,6 +580,25 @@ body {
   display: none;
 }
 
+.answer-explanation {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  color: var(--text);
+  text-align: left;
+}
+
+.answer-explanation.hidden {
+  display: none;
+}
+
+.feedback.correct-fb .answer-explanation,
+.feedback.wrong-fb .answer-explanation {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
 /* ── Quiz Footer ── */
 .quiz-footer {
   padding: 12px 16px calc(12px + var(--safe-bottom));

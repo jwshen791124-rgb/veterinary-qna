@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-data.mjs",
+    "explain": "node scripts/generate-explanations.mjs",
+    "explain:merge": "node scripts/merge-explanation-chunks.mjs",
     "start": "python3 -m http.server 3000"
   }
 }

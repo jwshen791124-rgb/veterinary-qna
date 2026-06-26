@@ -93,6 +93,20 @@ function parseQuestions(raw) {
 const raw = readFileSync(join(root, 'Question.json'), 'utf8');
 const questions = parseQuestions(raw);
 
+let explanations = {};
+const explanationsPath = join(root, 'data', 'explanations.json');
+try {
+  explanations = JSON.parse(readFileSync(explanationsPath, 'utf8'));
+} catch {
+  // 尚無註解檔
+}
+
+for (const q of questions) {
+  if (explanations[q.id]) {
+    q.explanation = explanations[q.id];
+  }
+}
+
 const categorized = {};
 for (const cat of CATEGORIES) {
   categorized[cat] = [];
@@ -105,6 +119,7 @@ for (const q of questions) {
     question: q.question,
     options: q.options,
     answer: q.answer,
+    ...(q.explanation ? { explanation: q.explanation } : {}),
   });
 }
 
