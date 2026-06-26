@@ -6,7 +6,12 @@
   <meta name="theme-color" content="#1a5f4a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="獸醫問卷" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>獸醫問卷練習</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -28,8 +33,15 @@
         />
         <p id="login-error" class="login-error hidden"></p>
         <button type="button" id="btn-login" class="btn-primary">進入</button>
+        <p class="install-hint">📱 像 App 使用：Safari / Chrome → <strong>分享</strong> → <strong>加入主畫面</strong></p>
       </div>
     </section>
+
+    <div id="install-banner" class="install-banner hidden">
+      <p>加入主畫面，像 App 一樣使用</p>
+      <button type="button" id="btn-install" class="btn-primary">安裝</button>
+      <button type="button" id="btn-install-dismiss" class="install-dismiss" aria-label="關閉">✕</button>
+    </div>
 
     <header id="app-user-bar" class="app-user-bar hidden">
       <span id="user-display" class="user-display"></span>

@@ -739,7 +739,42 @@ $('#login-code').addEventListener('keydown', (e) => {
 });
 $('#btn-logout').addEventListener('click', handleLogout);
 
+let deferredInstallPrompt = null;
+
+function setupInstallPrompt() {
+  if (window.matchMedia('(display-mode: standalone)').matches) return;
+  if (localStorage.getItem('qna_install_dismissed') === '1') return;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    $('#install-banner').classList.remove('hidden');
+  });
+
+  $('#btn-install').addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    $('#install-banner').classList.add('hidden');
+  });
+
+  $('#btn-install-dismiss').addEventListener('click', () => {
+    localStorage.setItem('qna_install_dismissed', '1');
+    $('#install-banner').classList.add('hidden');
+  });
+}
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  navigator.serviceWorker.register('./sw.js').catch((err) => {
+    console.warn('Service Worker 註冊失敗:', err);
+  });
+}
+
 async function bootstrap() {
+  registerServiceWorker();
+  setupInstallPrompt();
   try {
     await loadData();
     if (getCurrentUser()) {

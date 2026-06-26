@@ -131,6 +131,60 @@ body {
   display: none;
 }
 
+.install-hint {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.install-banner {
+  position: fixed;
+  left: 50%;
+  bottom: calc(72px + var(--safe-bottom));
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 448px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 200;
+}
+
+.install-banner.hidden {
+  display: none;
+}
+
+.install-banner p {
+  flex: 1;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.install-banner .btn-primary {
+  width: auto;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.install-dismiss {
+  border: none;
+  background: var(--bg);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 /* ── User Bar ── */
 .app-user-bar {
   display: none;

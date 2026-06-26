@@ -32,6 +32,15 @@ git commit -m "更新題庫"
 git push
 ```
 
+## 像 App 一樣使用（免 Render）
+
+用手機瀏覽器開啟網站後：
+
+- **iPhone（Safari）**：分享 → **加入主畫面**
+- **Android（Chrome）**：選單 → **安裝應用程式** 或 **加入主畫面**
+
+會出現自訂圖示，全螢幕開啟，題庫載入後可離線練習。
+
 ## GitHub Pages 設定
 
 若網站尚未上線，到 repo **Settings → Pages**：
