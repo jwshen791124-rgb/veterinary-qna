@@ -4,9 +4,7 @@
 
 ## 線上使用
 
-部署完成後，網址為：
-
-`https://<你的 GitHub 帳號>.github.io/<repo 名稱>/`
+https://jwshen791124-rgb.github.io/veterinary-qna/
 
 ## 功能
 
@@ -19,30 +17,24 @@
 ## 本地開發
 
 ```bash
-# 更新題庫分類（修改 Question.json 後執行）
 npm run build
-
-# 啟動本地伺服器
 npm start
-# 或雙擊 start.command（Mac）
 ```
 
 瀏覽器開啟 http://localhost:3000
 
-> 請勿直接雙擊 `index.html`，需透過本地伺服器或 GitHub Pages 開啟。
-
-## 部署到 GitHub Pages
-
-1. 在 GitHub 建立新 repository（例如 `veterinary-qna`）
-2. 推送此專案到 `main` 分支
-3. 到 repo **Settings → Pages → Build and deployment**
-4. Source 選 **GitHub Actions**
-5. 推送後會自動執行 `Deploy GitHub Pages` workflow
-
 ## 更新題庫
 
-1. 編輯 `Question.json`
-2. 執行 `npm run build`
-3. commit 並 push 到 `main`
+```bash
+npm run build
+git add .
+git commit -m "更新題庫"
+git push
+```
 
-GitHub Actions 也會在每次 push 時自動重新建置題庫。
+## GitHub Pages 設定
+
+若網站尚未上線，到 repo **Settings → Pages**：
+
+- Source：**Deploy from a branch**
+- Branch：**main** / **/ (root)**
