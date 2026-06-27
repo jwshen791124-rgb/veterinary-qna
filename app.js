@@ -50,6 +50,7 @@ const state = {
   results: [],
   wrongIds: [],
   returnTab: 'home',
+  quizReturnTab: 'home',
   quizMode: 'category',
 };
 
@@ -77,6 +78,14 @@ function showView(name) {
   userBar.classList.toggle('visible', showUserBar);
   userBar.classList.remove('hidden');
   if (showUserBar) updateUserBar();
+  if (name === 'quiz') {
+    requestAnimationFrame(updateQuizHeaderOffset);
+  }
+}
+
+function exitQuiz() {
+  flushUnsavedWrongs();
+  showTab(state.quizReturnTab || state.returnTab || 'home');
 }
 
 function updateUserBar() {
@@ -460,7 +469,19 @@ function startBookmarkQuiz() {
   beginQuiz();
 }
 
+function updateQuizHeaderOffset() {
+  const header = document.querySelector('#view-quiz .quiz-header');
+  if (!header) return;
+  const userBar = $('#app-user-bar');
+  if (userBar.classList.contains('visible')) {
+    header.style.top = `${userBar.offsetHeight}px`;
+  } else {
+    header.style.top = '0px';
+  }
+}
+
 function beginQuiz() {
+  state.quizReturnTab = state.returnTab || 'home';
   state.currentIndex = 0;
   state.results = [];
   state.wrongIds = [];
@@ -470,12 +491,12 @@ function beginQuiz() {
   $('#quiz-category').textContent = state.quizLabel;
   updateQuizChrome();
   showView('quiz');
+  updateQuizHeaderOffset();
   renderQuestion();
 }
 
 function updateQuizChrome() {
   const isExam = state.quizMode === 'exam';
-  $('#btn-shuffle').classList.toggle('hidden-tools', isExam);
   $('#btn-bookmark').classList.toggle('hidden-tools', isExam);
 }
 
@@ -816,11 +837,7 @@ function retryQuiz(questionIds = null) {
   }
 }
 
-$('#btn-back').addEventListener('click', () => {
-  flushUnsavedWrongs();
-  showTab(state.returnTab);
-});
-$('#btn-shuffle').addEventListener('click', () => retryQuiz());
+$('#btn-back').addEventListener('click', exitQuiz);
 $('#btn-prev').addEventListener('click', prevQuestion);
 $('#btn-bookmark').addEventListener('click', () => {
   const q = state.questions[state.currentIndex];
