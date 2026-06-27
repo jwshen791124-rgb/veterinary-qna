@@ -1,4 +1,4 @@
-const CACHE_NAME = 'veterinary-qna-v15';
+const CACHE_NAME = 'veterinary-qna-v16';
 const ASSETS = [
   './',
   './index.html',

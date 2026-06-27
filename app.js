@@ -179,12 +179,8 @@ function renderHome() {
       const meta = CATEGORY_ICONS[cat.name] || { icon: '📋', cls: 'cat-other' };
       const done = getCategoryDoneCount(cat.name);
       const countText = done > 0 ? `${done}/${cat.count} 題` : `${cat.count} 題`;
-      const resetBtn = done > 0
-        ? `<button type="button" class="category-reset-btn" data-category="${cat.name}" aria-label="重設進度">↺</button>`
-        : '';
       return `
         <div class="category-card" data-category="${cat.name}">
-          ${resetBtn}
           <div class="category-icon ${meta.cls}">${meta.icon}</div>
           <div class="category-info">
             <div class="category-name">${cat.name}</div>
@@ -198,25 +194,7 @@ function renderHome() {
     .join('');
 
   list.querySelectorAll('.category-card').forEach((card) => {
-    card.addEventListener('click', (e) => {
-      if (e.target.closest('.category-reset-btn')) return;
-      startCategoryQuiz(card.dataset.category);
-    });
-  });
-
-  list.querySelectorAll('.category-reset-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const category = btn.dataset.category;
-      const done = getCategoryDoneCount(category);
-      const total = state.data.categories.find((c) => c.name === category)?.count || 0;
-      const ok = confirm(
-        `確定要重設「${category}」的練習進度嗎？\n已做過的 ${done}/${total} 題將可再次出現。`
-      );
-      if (!ok) return;
-      resetCategoryProgress(category);
-      renderHome();
-    });
+    card.addEventListener('click', () => startCategoryQuiz(card.dataset.category));
   });
 }
 
@@ -514,6 +492,66 @@ function updateBookmarkBtn() {
   btn.classList.toggle('marked', marked);
 }
 
+function updatePrevBtn() {
+  const btn = $('#btn-prev');
+  const disabled = state.currentIndex <= 0;
+  btn.disabled = disabled;
+  btn.classList.toggle('disabled', disabled);
+}
+
+function showQuestionNavButtons() {
+  const isLast = state.currentIndex >= state.questions.length - 1;
+  const isExam = state.quizMode === 'exam';
+  if (isLast) {
+    $('#btn-finish').classList.remove('hidden');
+    $('#btn-finish').textContent = isExam ? '交卷看成績' : '查看成績';
+  } else {
+    $('#btn-next').classList.remove('hidden');
+  }
+}
+
+function applyAnswerUI(q, key, isCorrect, isExam) {
+  if (isExam) {
+    document.querySelectorAll('.option-btn').forEach((btn) => {
+      btn.disabled = true;
+      if (btn.dataset.key === key) btn.classList.add('exam-selected');
+    });
+    $('#feedback').classList.add('hidden');
+  } else {
+    document.querySelectorAll('.option-btn').forEach((btn) => {
+      btn.disabled = true;
+      const k = btn.dataset.key;
+      if (k === q.answer) {
+        btn.classList.add('correct');
+      } else if (k === key && !isCorrect) {
+        btn.classList.add('wrong');
+      } else if (k !== q.answer) {
+        btn.classList.add('dimmed');
+      }
+    });
+
+    const feedback = $('#feedback');
+    feedback.classList.remove('hidden', 'correct-fb', 'wrong-fb');
+    feedback.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
+    $('#feedback-icon').textContent = isCorrect ? '✅' : '❌';
+    $('#feedback-text').textContent = isCorrect ? '答對了！' : '答錯了';
+
+    const correctEl = $('#correct-answer');
+    correctEl.classList.remove('hidden');
+    correctEl.textContent = `正確答案：${q.answer}. ${q.options[q.answer]}`;
+    showAnswerExplanation(q);
+  }
+
+  showQuestionNavButtons();
+}
+
+function restoreAnsweredState(q, result) {
+  const isExam = state.quizMode === 'exam';
+  state.answered = true;
+  state.selectedKey = result.selected;
+  applyAnswerUI(q, result.selected, result.correct, isExam);
+}
+
 function renderQuestion() {
   const q = state.questions[state.currentIndex];
   const total = state.questions.length;
@@ -547,8 +585,16 @@ function renderQuestion() {
   $('#btn-next').classList.add('hidden');
   $('#btn-finish').classList.add('hidden');
   $('#btn-finish').textContent = '查看成績';
-  state.answered = false;
-  state.selectedKey = null;
+
+  const prior = state.results[state.currentIndex];
+  if (prior) {
+    restoreAnsweredState(q, prior);
+  } else {
+    state.answered = false;
+    state.selectedKey = null;
+  }
+
+  updatePrevBtn();
 }
 
 function showAnswerExplanation(q) {
@@ -574,54 +620,34 @@ function selectOption(key) {
   state.answered = true;
   state.selectedKey = key;
 
-  const result = { id: q.id, correct: isCorrect, selected: key, saved: false };
-  state.results.push(result);
-  if (!isCorrect) state.wrongIds.push(q.id);
+  const prior = state.results[state.currentIndex];
+  const result = { id: q.id, correct: isCorrect, selected: key, saved: prior?.saved || false };
+  state.results[state.currentIndex] = result;
+
+  if (prior && !prior.correct) {
+    const wrongIdx = state.wrongIds.lastIndexOf(q.id);
+    if (wrongIdx >= 0) state.wrongIds.splice(wrongIdx, 1);
+  }
+  if (!isCorrect && !state.wrongIds.includes(q.id)) {
+    state.wrongIds.push(q.id);
+  }
 
   if (isExam) {
-    document.querySelectorAll('.option-btn').forEach((btn) => {
-      btn.disabled = true;
-      if (btn.dataset.key === key) btn.classList.add('exam-selected');
-    });
-    $('#feedback').classList.add('hidden');
+    applyAnswerUI(q, key, isCorrect, true);
   } else {
     if (state.quizMode === 'category' && state.category) {
       markCategoryQuestionDone(state.category, q.id);
     }
 
     if (!isCorrect) saveWrongResult(result);
-
-    document.querySelectorAll('.option-btn').forEach((btn) => {
-      btn.disabled = true;
-      const k = btn.dataset.key;
-      if (k === q.answer) {
-        btn.classList.add('correct');
-      } else if (k === key && !isCorrect) {
-        btn.classList.add('wrong');
-      } else if (k !== q.answer) {
-        btn.classList.add('dimmed');
-      }
-    });
-
-    const feedback = $('#feedback');
-    feedback.classList.remove('hidden', 'correct-fb', 'wrong-fb');
-    feedback.classList.add(isCorrect ? 'correct-fb' : 'wrong-fb');
-    $('#feedback-icon').textContent = isCorrect ? '✅' : '❌';
-    $('#feedback-text').textContent = isCorrect ? '答對了！' : '答錯了';
-
-    const correctEl = $('#correct-answer');
-    correctEl.classList.remove('hidden');
-    correctEl.textContent = `正確答案：${q.answer}. ${q.options[q.answer]}`;
-    showAnswerExplanation(q);
+    applyAnswerUI(q, key, isCorrect, false);
   }
+}
 
-  const isLast = state.currentIndex >= state.questions.length - 1;
-  if (isLast) {
-    $('#btn-finish').classList.remove('hidden');
-    $('#btn-finish').textContent = isExam ? '交卷看成績' : '查看成績';
-  } else {
-    $('#btn-next').classList.remove('hidden');
-  }
+function prevQuestion() {
+  if (state.currentIndex <= 0) return;
+  state.currentIndex--;
+  renderQuestion();
 }
 
 function nextQuestion() {
@@ -655,20 +681,25 @@ function saveWrongResult(result) {
   }
 }
 
+function getAnsweredResults() {
+  return state.results.filter(Boolean);
+}
+
 function flushUnsavedWrongs() {
-  state.results.filter((r) => !r.correct && !r.saved).forEach(saveWrongResult);
+  getAnsweredResults().filter((r) => !r.correct && !r.saved).forEach(saveWrongResult);
 }
 
 function showResult() {
   flushUnsavedWrongs();
 
-  const correct = state.results.filter((r) => r.correct).length;
-  const wrong = state.results.length - correct;
-  const total = state.results.length;
+  const answered = getAnsweredResults();
+  const correct = answered.filter((r) => r.correct).length;
+  const total = answered.length;
+  const wrong = total - correct;
   const isExam = state.quizMode === 'exam';
 
   if (isExam) {
-    state.results.filter((r) => !r.correct).forEach((result) => {
+    answered.filter((r) => !r.correct).forEach((result) => {
       const q = state.questions.find((item) => item.id === result.id);
       if (!q || result.saved) return;
       const ok = saveWrongAnswers([
@@ -790,6 +821,7 @@ $('#btn-back').addEventListener('click', () => {
   showTab(state.returnTab);
 });
 $('#btn-shuffle').addEventListener('click', () => retryQuiz());
+$('#btn-prev').addEventListener('click', prevQuestion);
 $('#btn-bookmark').addEventListener('click', () => {
   const q = state.questions[state.currentIndex];
   toggleBookmark(q, getCurrentCategory());
