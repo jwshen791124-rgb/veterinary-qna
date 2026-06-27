@@ -224,3 +224,34 @@ export function saveExamRecord({ score, total, wrong }) {
   });
   return writeUser('exam_history', history.slice(0, 50));
 }
+
+export function getCategoryProgress() {
+  if (!getCurrentUser()) return {};
+  return readUser('category_progress', {});
+}
+
+export function getCategoryDoneIds(category) {
+  const ids = getCategoryProgress()[category] || [];
+  return new Set(ids);
+}
+
+export function getCategoryDoneCount(category) {
+  return getCategoryDoneIds(category).size;
+}
+
+export function markCategoryQuestionDone(category, questionId) {
+  if (!getCurrentUser() || !category) return false;
+  const progress = getCategoryProgress();
+  if (!progress[category]) progress[category] = [];
+  if (progress[category].includes(questionId)) return true;
+  progress[category].push(questionId);
+  return writeUser('category_progress', progress);
+}
+
+export function resetCategoryProgress(category) {
+  if (!getCurrentUser()) return false;
+  const progress = getCategoryProgress();
+  if (!progress[category]) return true;
+  delete progress[category];
+  return writeUser('category_progress', progress);
+}

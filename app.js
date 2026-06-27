@@ -12,6 +12,10 @@ import {
   removeBookmark,
   getExamHistory,
   saveExamRecord,
+  getCategoryDoneIds,
+  getCategoryDoneCount,
+  markCategoryQuestionDone,
+  resetCategoryProgress,
 } from './storage.js';
 
 const CATEGORY_ICONS = {
@@ -127,6 +131,7 @@ function showTab(name) {
   document.querySelectorAll('.nav-item').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.tab === name);
   });
+  if (name === 'home') renderHome();
   if (name === 'wrong') renderWrongHistory();
   if (name === 'bookmarks') renderBookmarks();
   if (name === 'exam') renderExamTab();
@@ -172,22 +177,45 @@ function renderHome() {
   list.innerHTML = state.data.categories
     .map((cat) => {
       const meta = CATEGORY_ICONS[cat.name] || { icon: '📋', cls: 'cat-other' };
+      const done = getCategoryDoneCount(cat.name);
+      const countText = done > 0 ? `${done}/${cat.count} 題` : `${cat.count} 題`;
+      const resetBtn = done > 0
+        ? `<button type="button" class="category-reset-btn" data-category="${cat.name}" aria-label="重設進度">重設</button>`
+        : '';
       return `
-        <button type="button" class="category-card" data-category="${cat.name}">
-          <div class="category-icon ${meta.cls}">${meta.icon}</div>
-          <div class="category-info">
-            <div class="category-name">${cat.name}</div>
-            <div class="category-count">${cat.count} 題</div>
-          </div>
-          <span class="category-arrow">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </span>
-        </button>`;
+        <div class="category-card-wrap">
+          <button type="button" class="category-card" data-category="${cat.name}">
+            <div class="category-icon ${meta.cls}">${meta.icon}</div>
+            <div class="category-info">
+              <div class="category-name">${cat.name}</div>
+              <div class="category-count${done >= cat.count ? ' category-count-done' : ''}">${countText}</div>
+            </div>
+            <span class="category-arrow">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </span>
+          </button>
+          ${resetBtn}
+        </div>`;
     })
     .join('');
 
   list.querySelectorAll('.category-card').forEach((btn) => {
     btn.addEventListener('click', () => startCategoryQuiz(btn.dataset.category));
+  });
+
+  list.querySelectorAll('.category-reset-btn').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const category = btn.dataset.category;
+      const done = getCategoryDoneCount(category);
+      const total = state.data.categories.find((c) => c.name === category)?.count || 0;
+      const ok = confirm(
+        `確定要重設「${category}」的練習進度嗎？\n已做過的 ${done}/${total} 題將可再次出現。`
+      );
+      if (!ok) return;
+      resetCategoryProgress(category);
+      renderHome();
+    });
   });
 }
 
@@ -367,13 +395,33 @@ function startCategoryQuiz(category, questionIds = null) {
   state.quizLabel = category;
   const all = state.data.questions[category] || [];
 
+  let pool;
   if (questionIds) {
     const idSet = new Set(questionIds);
-    state.questions = shuffle(all.filter((q) => idSet.has(q.id)));
+    pool = all.filter((q) => idSet.has(q.id));
   } else {
-    state.questions = shuffle(all);
+    const doneIds = getCategoryDoneIds(category);
+    pool = all.filter((q) => !doneIds.has(q.id));
   }
 
+  if (!pool.length) {
+    if (!questionIds && getCategoryDoneCount(category) >= all.length) {
+      const reset = confirm(
+        `「${category}」已練習完全部 ${all.length} 題。\n要重設進度重新練習嗎？`
+      );
+      if (reset) {
+        resetCategoryProgress(category);
+        renderHome();
+        pool = [...all];
+      } else {
+        return;
+      }
+    } else {
+      return;
+    }
+  }
+
+  state.questions = shuffle(pool);
   beginQuiz();
 }
 
@@ -536,6 +584,10 @@ function selectOption(key) {
     });
     $('#feedback').classList.add('hidden');
   } else {
+    if (state.quizMode === 'category' && state.category) {
+      markCategoryQuestionDone(state.category, q.id);
+    }
+
     if (!isCorrect) saveWrongResult(result);
 
     document.querySelectorAll('.option-btn').forEach((btn) => {
@@ -671,7 +723,11 @@ function showResult() {
     retryWrong.classList.add('hidden');
   }
 
-  $('#btn-retry-all').textContent = isExam ? '再考一次' : '再練一次';
+  $('#btn-retry-all').textContent = isExam ? '再考一次' : '繼續練習';
+
+  if (state.quizMode === 'category' && state.category) {
+    renderHome();
+  }
 
   showView('result');
 }
@@ -741,7 +797,7 @@ $('#btn-bookmark').addEventListener('click', () => {
 $('#btn-next').addEventListener('click', nextQuestion);
 $('#btn-finish').addEventListener('click', showResult);
 $('#btn-home').addEventListener('click', () => {
-  $('#btn-retry-all').textContent = '再練一次';
+  $('#btn-retry-all').textContent = '繼續練習';
   $('#btn-retry-wrong').textContent = '重練錯題';
   showTab(state.returnTab);
 });
