@@ -180,27 +180,28 @@ function renderHome() {
       const done = getCategoryDoneCount(cat.name);
       const countText = done > 0 ? `${done}/${cat.count} 題` : `${cat.count} 題`;
       const resetBtn = done > 0
-        ? `<button type="button" class="category-reset-btn" data-category="${cat.name}" aria-label="重設進度">重設</button>`
+        ? `<button type="button" class="category-reset-btn" data-category="${cat.name}" aria-label="重設進度">↺</button>`
         : '';
       return `
-        <div class="category-card-wrap">
-          <button type="button" class="category-card" data-category="${cat.name}">
-            <div class="category-icon ${meta.cls}">${meta.icon}</div>
-            <div class="category-info">
-              <div class="category-name">${cat.name}</div>
-              <div class="category-count${done >= cat.count ? ' category-count-done' : ''}">${countText}</div>
-            </div>
-            <span class="category-arrow">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-            </span>
-          </button>
+        <div class="category-card" data-category="${cat.name}">
           ${resetBtn}
+          <div class="category-icon ${meta.cls}">${meta.icon}</div>
+          <div class="category-info">
+            <div class="category-name">${cat.name}</div>
+            <div class="category-count${done >= cat.count ? ' category-count-done' : ''}">${countText}</div>
+          </div>
+          <span class="category-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+          </span>
         </div>`;
     })
     .join('');
 
-  list.querySelectorAll('.category-card').forEach((btn) => {
-    btn.addEventListener('click', () => startCategoryQuiz(btn.dataset.category));
+  list.querySelectorAll('.category-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.category-reset-btn')) return;
+      startCategoryQuiz(card.dataset.category);
+    });
   });
 
   list.querySelectorAll('.category-reset-btn').forEach((btn) => {
